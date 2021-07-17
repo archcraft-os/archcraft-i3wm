@@ -2,12 +2,12 @@
 
 pkgname=archcraft-i3wm
 pkgver=1.0
-pkgrel=1
+pkgrel=2
 pkgdesc="i3wm configurations for Archcraft"
 arch=('any')
 license=('GPL3')
 makedepends=('git')
-depends=('i3-gaps')
+depends=('i3-gaps' 'hsetroot')
 conflicts=()
 provides=("${pkgname}")
 options=(!strip !emptydirs)
