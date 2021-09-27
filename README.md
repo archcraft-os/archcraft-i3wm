@@ -1,2 +1,2 @@
 # archcraft-i3wm
-i3wm configurations for Archcraft
+ // Configuration : i3wm

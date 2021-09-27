@@ -1,6 +1,0 @@
-#!/usr/bin/env bash
-rofi -dmenu\
-     -i\
-     -no-fixed-num-lines\
-     -p "Are You Sure? : "\
-     -theme ~/.config/i3/rofi/themes/confirm.rasi
