@@ -33,5 +33,6 @@ package() {
 	chmod +x "$_config"/rofi/bin/*
 
 	install -Dm 644 config   		"$_config"/config
+	install -Dm 644 dunstrc   		"$_config"/dunstrc
 	install -Dm 644 picom.conf   	"$_config"/picom.conf
 }
