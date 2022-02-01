@@ -128,6 +128,7 @@ font-0 = "JetBrains Mono:bold:size=10;3"
 font-1 = "Iosevka Nerd Font:size=12;3"
 font-2 = "Iosevka Nerd Font:size=15;4"
 font-3 = "Iosevka Nerd Font:bold:size=12;4"
+font-4 = "archcraft:size=14;4"
 
 ; Modules are added to one of the available blocks
 ;   modules-left = cpu ram
