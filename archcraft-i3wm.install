@@ -1,0 +1,20 @@
+post_install() {
+	local _user=`echo ${SUDO_USER:-$(whoami)}`
+	local _gid=`echo ${SUDO_GID}`
+	local _group=`cat /etc/group | grep ${_gid} | cut -d: -f1 | head -1`
+	local _dir="/home/${_user}/.config"
+	
+	if [[ ! -d "${_dir}/i3" ]]; then
+		echo -e "\n[*] Copying i3wm config files into ${_dir}..."
+		mkdir -p ${_dir}/i3
+		cp -rf /etc/skel/.config/i3/* ${_dir}/i3/
+		chown -R ${_user}:${_group} ${_dir}/i3
+		if [[ -d "${_dir}/i3" ]]; then
+			echo -e "[*] Done!\n"
+		else
+			echo -e "[*] Failed!\n"
+		fi
+	else
+		echo -e "\n[*] Configurations for i3wm already exist in your config dir.\n Please copy the config files manually from '/etc/skel/.config/i3' before you login into i3wm.\n"
+	fi
+}
