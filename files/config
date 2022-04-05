@@ -68,7 +68,6 @@ bindsym $alt+F1 				exec --no-startup-id ~/.config/i3/rofi/bin/launcher
 bindsym $mod+n 					exec --no-startup-id ~/.config/i3/rofi/bin/network_menu
 bindsym $mod+x 					exec --no-startup-id ~/.config/i3/rofi/bin/powermenu
 bindsym $mod+m 					exec --no-startup-id ~/.config/i3/rofi/bin/mpd
-bindsym $mod+i 					exec --no-startup-id ~/.config/i3/rofi/bin/network
 bindsym $mod+s 					exec --no-startup-id ~/.config/i3/rofi/bin/screenshot
 bindsym $mod+r 					exec --no-startup-id ~/.config/i3/rofi/bin/asroot
 bindsym $mod+w 					exec --no-startup-id ~/.config/i3/rofi/bin/windows
