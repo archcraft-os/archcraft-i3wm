@@ -19,10 +19,11 @@ margin-top = 0
 ;; File Inclusion
 ; include an external file, like module file, etc.
 
+include-file = ~/.config/i3/polybar/system
+
 include-file = ~/.config/i3/polybar/colors
 include-file = ~/.config/i3/polybar/modules
 include-file = ~/.config/i3/polybar/decor
-include-file = ~/.config/i3/polybar/system
 
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 

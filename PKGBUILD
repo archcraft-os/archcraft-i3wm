@@ -2,22 +2,19 @@
 
 pkgname=archcraft-i3wm
 pkgver=1.0
-pkgrel=5
+pkgrel=6
 pkgdesc="i3wm Configurations for Archcraft"
 url="https://github.com/archcraft-os/archcraft-i3wm"
 arch=('any')
 license=('GPL3')
 makedepends=('git')
 depends=('i3-gaps' 'hsetroot'
-		'archcraft-skeleton'
 		'alacritty' 'thunar' 'geany'
 		'rofi' 'polybar' 'dunst'
 		'mpd' 'mpc'
 		'maim' 'xclip' 'viewnior'
 		'ksuperkey' 
 		'betterlockscreen'
-		'picom-ibhagwan-git' 
-		'xfce-polkit' 
 		'xfce4-power-manager' 
 		'xorg-xsetroot'
 )

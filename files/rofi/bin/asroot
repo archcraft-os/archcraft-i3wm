@@ -12,33 +12,30 @@ terminal=" Alacritty"
 files=" Thunar"
 editor=" Geany"
 clifm=" Ranger"
-lpad=" Leafpad"
 vim=" Vim"
 
 # Variable passed to rofi
 options="$terminal\n$files\n$editor\n$clifm\n$vim"
+term='alacritty --class alacritty-float,alacritty-float --config-file /root/.config/alacritty/alacritty.yml'
 
 # Functions
 
 chosen="$(echo -e "$options" | $rofi_command -p "Run as root" -dmenu -selected-row 0)"
 case $chosen in
     $terminal)
-        "$DIR"/bin/apps_as_root.sh 'alacritty --class alacritty-float,alacritty-float --config-file /root/.config/alacritty/alacritty.yml'
+        "$DIR"/bin/asroot.sh "$term"
         ;;
     $files)
-        "$DIR"/bin/apps_as_root.sh 'dbus-run-session thunar'
+        "$DIR"/bin/asroot.sh 'dbus-run-session thunar'
         ;;
     $editor)
-        "$DIR"/bin/apps_as_root.sh geany
+        "$DIR"/bin/asroot.sh geany
         ;;
     $clifm)
-        "$DIR"/bin/apps_as_root.sh 'alacritty --class alacritty-float,alacritty-float --config-file /root/.config/alacritty/alacritty.yml -e ranger'
-        ;;
-    $lpad)
-        "$DIR"/bin/apps_as_root.sh leafpad
+        "$DIR"/bin/asroot.sh "$term -e ranger"
         ;;
     $vim)
-        "$DIR"/bin/apps_as_root.sh 'alacritty --class alacritty-float,alacritty-float --config-file /root/.config/alacritty/alacritty.yml -e vim'
+        "$DIR"/bin/asroot.sh "$term -e vim"
         ;;
 esac
 

@@ -50,8 +50,8 @@ exec_always --no-startup-id 	~/.config/i3/bin/autostart.sh
 
 # -- Terminal --
 bindsym $mod+Return 			exec --no-startup-id ~/.config/i3/bin/i3term.sh
-bindsym $mod+Shift+Return 		exec --no-startup-id ~/.config/i3/bin/i3term.sh -f
-bindsym $mod+t 					exec --no-startup-id ~/.config/i3/bin/i3term.sh -s
+bindsym $mod+Shift+Return 		exec --no-startup-id ~/.config/i3/bin/i3term.sh --float
+bindsym $mod+t 					exec --no-startup-id ~/.config/i3/bin/i3term.sh --full
 
 # -- Apps --
 bindsym $mod+Shift+f 			exec --no-startup-id thunar
@@ -78,6 +78,7 @@ bindsym XF86MonBrightnessDown 	exec --no-startup-id "brightness --dec"
 bindsym XF86AudioRaiseVolume 	exec --no-startup-id "volume --inc"
 bindsym XF86AudioLowerVolume 	exec --no-startup-id "volume --dec"
 bindsym XF86AudioMute 			exec --no-startup-id "volume --toggle"
+bindsym XF86AudioMicMute 		exec --no-startup-id "volume --toggle-mic"
 bindsym XF86AudioNext 			exec --no-startup-id "mpc next"
 bindsym XF86AudioPrev 			exec --no-startup-id "mpc prev"
 bindsym XF86AudioPlay 			exec --no-startup-id "mpc toggle"

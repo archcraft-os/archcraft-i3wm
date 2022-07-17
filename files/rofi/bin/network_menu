@@ -9,7 +9,7 @@ https://wiki.archlinux.org/index.php/NetworkManager#Set_up_PolicyKit_permissions
 OR running the script as root
 
 Add dmenu options and default terminal if desired to
-~/.config/networkmanager-dmenu/nmd.ini
+~/.config/i3/rofi/themes/networkmenu_config.ini
 
 """
 import pathlib
@@ -63,8 +63,29 @@ def cli_args():
     return args
 
 
+def dmenu_pass(command, color):
+    """Check if dmenu passphrase patch is applied and return the correct command
+    line arg list
+
+    Args: command - string
+          color - obscure color string
+    Returns: list or None
+
+    """
+    if command != 'dmenu':
+        return None
+    try:
+        # Check for dmenu password patch
+        dm_patch = b'P' in subprocess.run(["dmenu", "-h"],
+                                          capture_output=True,
+                                          check=False).stderr
+    except FileNotFoundError:
+        dm_patch = False
+    return ["-P"] if dm_patch else ["-nb", color, "-nf", color]
+
+
 def dmenu_cmd(num_lines, prompt="Networks", active_lines=None):
-    """Parse nmd.ini for menu options
+    """Parse config.ini for menu options
 
     Args: args - num_lines: number of lines to display
                  prompt: prompt to show
@@ -73,9 +94,11 @@ def dmenu_cmd(num_lines, prompt="Networks", active_lines=None):
                 ["dmenu", "-l", "<num_lines>", "-p", "<prompt>", "-i"]
 
     """
+    # Create command string
     commands = {"dmenu": ["-p", str(prompt)],
                 "rofi": ["-dmenu", "-p", str(prompt), "-l", str(num_lines)],
-                "bemenu": ["-p", str(prompt)]}
+                "bemenu": ["-p", str(prompt)],
+                "wofi": ["-p", str(prompt)]}
     command = shlex.split(CONF.get('dmenu', 'dmenu_command', fallback="dmenu"))
     command.extend(cli_args())
     command.extend(commands.get(command[0], []))
@@ -87,17 +110,10 @@ def dmenu_cmd(num_lines, prompt="Networks", active_lines=None):
     obscure = CONF.getboolean('dmenu_passphrase', 'obscure', fallback=False)
     if prompt == "Passphrase" and obscure is True:
         obscure_color = CONF.get('dmenu_passphrase', 'obscure_color', fallback='#222222')
-        try:
-            # Check for dmenu password patch
-            dm_patch = b'P' in subprocess.run(["dmenu", "-h"],
-                                              capture_output=True,
-                                              check=False).stderr
-        except FileNotFoundError:
-            dm_patch = False
-        dmenu = ["-P"] if dm_patch else ["-nb", obscure_color, "-nf", obscure_color]
-        pass_prompts = {"dmenu": dmenu,
+        pass_prompts = {"dmenu": dmenu_pass(command[0], obscure_color),
                         "rofi": ['-password'],
-                        "bemenu": ['x']}
+                        "bemenu": ['-x'],
+                        "wofi": ['-P']}
         command.extend(pass_prompts.get(command[0], []))
     return command
 
@@ -650,6 +666,7 @@ def get_passphrase():
                 pin = res.split("D ")[1]
         return pin
     return subprocess.run(dmenu_cmd(0, "Passphrase"),
+                          stdin=subprocess.DEVNULL,
                           capture_output=True,
                           check=False,
                           encoding=ENC).stdout
