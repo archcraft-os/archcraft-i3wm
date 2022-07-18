@@ -7,7 +7,7 @@ configuration {
     display-drun: 					"";
     drun-display-format:            "{icon} {name}";
     display-window: 				"Windows :";
-    window-format: 					" {w}  ·  {c}  ·  {t}";
+    window-format: 					" {w} · {c} · {t}";
     disable-history:                false;
 	click-to-exit: 					true;
 }
@@ -21,7 +21,7 @@ window {
     border:                  		0px;
     border-color:                  	@selected;
     border-radius:                  12px;
-    width:                          450px;
+    width:                          500px;
     location:                       center;
     anchor:                         center;
     x-offset:                       0;
@@ -84,8 +84,8 @@ case-indicator {
 listview {
     background-color:               @background;
     columns:                        1;
-    lines:							6;
-    spacing:                        4px;
+    lines:							8;
+    spacing:                        5px;
     cycle:                          true;
     dynamic:                        true;
     layout:                         vertical;

@@ -2,7 +2,7 @@
 
 pkgname=archcraft-i3wm
 pkgver=1.0
-pkgrel=6
+pkgrel=7
 pkgdesc="i3wm Configurations for Archcraft"
 url="https://github.com/archcraft-os/archcraft-i3wm"
 arch=('any')

@@ -101,7 +101,7 @@ element {
     text-color:                     @foreground;
     orientation:                    horizontal;
     border-radius:                  100%;
-    padding:                        25px;
+    padding:                        23px 25px 23px 25px;
 }
 
 element-icon {
