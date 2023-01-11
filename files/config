@@ -1,5 +1,4 @@
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 ##
 ## i3wm configuration for Archcraft
 
@@ -58,10 +57,9 @@ bindsym $mod+Shift+f 			exec --no-startup-id thunar
 bindsym $mod+Shift+e 			exec --no-startup-id geany
 bindsym $mod+Shift+w 			exec --no-startup-id firefox
 bindsym $alt+Control+v 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e vim"
-bindsym $alt+Control+n 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e nvim"
 bindsym $alt+Control+r 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e ranger"
 bindsym $alt+Control+h 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e htop"
-bindsym $alt+Control+b 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e bashtop"
+bindsym $alt+Control+m 			exec --no-startup-id ~/.config/i3/bin/i3music.sh
 
 # -- Rofi --
 bindsym $alt+F1 				exec --no-startup-id ~/.config/i3/rofi/bin/launcher
@@ -73,23 +71,23 @@ bindsym $mod+r 					exec --no-startup-id ~/.config/i3/rofi/bin/asroot
 bindsym $mod+w 					exec --no-startup-id ~/.config/i3/rofi/bin/windows
 
 # -- Function keys --
-bindsym XF86MonBrightnessUp 	exec --no-startup-id "brightness --inc"
-bindsym XF86MonBrightnessDown 	exec --no-startup-id "brightness --dec"
-bindsym XF86AudioRaiseVolume 	exec --no-startup-id "volume --inc"
-bindsym XF86AudioLowerVolume 	exec --no-startup-id "volume --dec"
-bindsym XF86AudioMute 			exec --no-startup-id "volume --toggle"
-bindsym XF86AudioMicMute 		exec --no-startup-id "volume --toggle-mic"
+bindsym XF86MonBrightnessUp 	exec --no-startup-id "~/.config/i3/bin/i3brightness.sh --inc"
+bindsym XF86MonBrightnessDown 	exec --no-startup-id "~/.config/i3/bin/i3brightness.sh --dec"
+bindsym XF86AudioRaiseVolume 	exec --no-startup-id "~/.config/i3/bin/i3volume.sh --inc"
+bindsym XF86AudioLowerVolume 	exec --no-startup-id "~/.config/i3/bin/i3volume.sh --dec"
+bindsym XF86AudioMute 			exec --no-startup-id "~/.config/i3/bin/i3volume.sh --toggle"
+bindsym XF86AudioMicMute 		exec --no-startup-id "~/.config/i3/bin/i3volume.sh --toggle-mic"
 bindsym XF86AudioNext 			exec --no-startup-id "mpc next"
 bindsym XF86AudioPrev 			exec --no-startup-id "mpc prev"
 bindsym XF86AudioPlay 			exec --no-startup-id "mpc toggle"
 bindsym XF86AudioStop 			exec --no-startup-id "mpc stop"
 
 # -- Screenshots --
-bindsym Print 					exec --no-startup-id "takeshot --now"
-bindsym $mod+Print 				exec --no-startup-id "takeshot --in5"
-bindsym Shift+Print 			exec --no-startup-id "takeshot --in10"
-bindsym Control+Print 			exec --no-startup-id "takeshot --win"
-bindsym $mod+Control+Print 		exec --no-startup-id "takeshot --area"
+bindsym Print 					exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --now"
+bindsym $mod+Print 				exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --in5"
+bindsym Shift+Print 			exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --in10"
+bindsym Control+Print 			exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --win"
+bindsym $mod+Control+Print 		exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --area"
 
 # -- i3wm --
 
@@ -278,7 +276,7 @@ assign [class="Pavucontrol|Xfce4-power-manager-settings"] 6
 ##-- Window Rules ------------------------
 for_window [window_role="pop-up"] floating enable
 for_window [window_role="task_dialog"] floating enable
-for_window [class="alacritty-float"] floating enable
+for_window [class="alacritty-float|Music"] floating enable
 for_window [class="Pcmanfm|Onboard|Yad"] floating enable
 for_window [class="Lxappearance|Nitrogen"] floating enable
 for_window [class="Pavucontrol|Xfce4-power-manager-settings|Nm-connection-editor"] floating enable

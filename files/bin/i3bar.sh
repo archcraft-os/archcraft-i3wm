@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 
 ## Files and Directories
 DIR="$HOME/.config/i3/polybar"
@@ -51,11 +50,16 @@ launch_bar() {
 		touch "$MFILE"
 	fi
 
-	if [[ ! `pidof polybar` ]]; then
-		polybar -q main -c "$DIR"/config &
-	else
-		polybar-msg cmd restart
-	fi
+	# Terminate already running bar instances
+	killall -q polybar
+
+	# Wait until the processes have been shut down
+	while pgrep -u $UID -x polybar >/dev/null; do sleep 1; done
+
+	# Launch the bar
+	for mon in $(polybar --list-monitors | cut -d":" -f1); do
+		MONITOR=$mon polybar -q main -c "$DIR"/config &
+	done
 }
 
 # Execute functions

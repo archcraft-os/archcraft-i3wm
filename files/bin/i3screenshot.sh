@@ -1,28 +1,25 @@
 #!/usr/bin/env bash
 
 ## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+##
+## Script to take screenshots on Archcraft.
 
-DIR="$HOME/.config/i3"
-
+# file
 time=`date +%Y-%m-%d-%H-%M-%S`
 geometry=`xrandr | grep 'current' | head -n1 | cut -d',' -f2 | tr -d '[:blank:],current'`
 dir="`xdg-user-dir PICTURES`/Screenshots"
 file="Screenshot_${time}_${geometry}.png"
 
-# Commands
-notify_cmd_shot="dunstify -u low --replace=699 -i /usr/share/archcraft/icons/dunst/picture.png"
-rofi_command="rofi -theme $DIR/rofi/themes/screenshot.rasi"
-
-# Buttons
-screen=""
-area=""
-window=""
-infive=""
-inten=""
+# directory
+if [[ ! -d "$dir" ]]; then
+	mkdir -p "$dir"
+fi
 
 # notify and view screenshot
 notify_view () {
+	notify_cmd_shot='dunstify -u low -h string:x-dunst-stack-tag:obscreenshot -i /usr/share/archcraft/icons/dunst/picture.png'
 	${notify_cmd_shot} "Copied to clipboard."
+	paplay /usr/share/sounds/freedesktop/stereo/screen-capture.oga &>/dev/null &
 	viewnior ${dir}/"$file"
 	if [[ -e "$dir/$file" ]]; then
 		${notify_cmd_shot} "Screenshot Saved."
@@ -31,7 +28,7 @@ notify_view () {
 	fi
 }
 
-# Copy screenshot to clipboard
+# copy screenshot to clipboard
 copy_shot () {
 	tee "$file" | xclip -selection clipboard -t image/png
 }
@@ -39,14 +36,14 @@ copy_shot () {
 # countdown
 countdown () {
 	for sec in `seq $1 -1 1`; do
-		dunstify -t 1000 --replace=699 -i /usr/share/archcraft/icons/dunst/timer.png "Taking shot in : $sec"
+		dunstify -t 1000 -h string:x-dunst-stack-tag:screenshottimer -i /usr/share/archcraft/icons/dunst/timer.png "Taking shot in : $sec"
 		sleep 1
 	done
 }
 
 # take shots
 shotnow () {
-	cd ${dir} && sleep 0.5 && maim -u -f png | copy_shot
+	cd ${dir} && maim -u -f png | copy_shot
 	notify_view
 }
 
@@ -72,29 +69,19 @@ shotarea () {
 	notify_view
 }
 
-if [[ ! -d "$dir" ]]; then
-	mkdir -p "$dir"
+# execute
+if [[ "$1" == "--now" ]]; then
+	shotnow
+elif [[ "$1" == "--in5" ]]; then
+	shot5
+elif [[ "$1" == "--in10" ]]; then
+	shot10
+elif [[ "$1" == "--win" ]]; then
+	shotwin
+elif [[ "$1" == "--area" ]]; then
+	shotarea
+else
+	echo -e "Available Options : --now --in5 --in10 --win --area"
 fi
 
-# Variable passed to rofi
-options="$screen\n$area\n$window\n$infive\n$inten"
-
-chosen="$(echo -e "$options" | $rofi_command -p 'Take Screenshot' -dmenu -selected-row 0)"
-case $chosen in
-    $screen)
-		shotnow
-        ;;
-    $area)
-		shotarea
-        ;;
-    $window)
-		shotwin
-		;;
-    $infive)
-		shot5
-		;;
-    $inten)
-		shot10
-        ;;
-esac
-
+exit 0

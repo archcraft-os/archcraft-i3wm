@@ -1,5 +1,4 @@
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
@@ -631,18 +630,10 @@ label-disconnected = "%{A1:~/.config/i3/rofi/bin/network_menu &:}Offline%{A}"
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
 ; If you use both a wired and a wireless network, just add 2 module definitions. For example
-[module/wired-network]
-type = internal/network
-interface = ${system.network_interface}
-
-[module/wireless-network]
-type = internal/network
-interface = ${system.sys_network_interface}
-
 ; Normal Module
 [module/network]
 type = internal/network
-interface = ${system.network_interface}
+interface = ${system.sys_network_interface}
 
 ; Seconds to sleep between updates
 ; Default: 1

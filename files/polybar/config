@@ -1,5 +1,4 @@
-## Copyright (C) 2020-2022 Aditya Shakya <adi1090x@gmail.com>
-## Everyone is permitted to copy and distribute copies of this file under GNU-GPL3
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 
 ;; _-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_-_
 
@@ -34,7 +33,7 @@ include-file = ~/.config/i3/polybar/decor
 ; If unspecified, the application will pick the first one it finds.
 ; $ polybar -m | cut -d ':' -f 1
 ; $ xrandr -q | grep " connected" | cut -d ' ' -f1
-monitor =
+monitor = ${env:MONITOR:}
 
 ; Use the specified monitor as a fallback if the main one is not found.
 monitor-fallback =

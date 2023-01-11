@@ -1,14 +1,14 @@
 # Maintainer: Aditya Shakya <adi1090x@gmail.com>
 
 pkgname=archcraft-i3wm
-pkgver=1.0
-pkgrel=8
+pkgver=2.0
+pkgrel=0
 pkgdesc="i3wm Configurations for Archcraft"
 url="https://github.com/archcraft-os/archcraft-i3wm"
 arch=('any')
 license=('GPL3')
 makedepends=('git')
-depends=('i3-gaps' 'hsetroot'
+depends=('i3-wm' 'hsetroot'
 		'alacritty' 'thunar' 'geany'
 		'rofi' 'polybar' 'dunst'
 		'mpd' 'mpc'
@@ -17,8 +17,10 @@ depends=('i3-gaps' 'hsetroot'
 		'betterlockscreen'
 		'xfce4-power-manager' 
 		'xorg-xsetroot'
+		'wmname'
+		'pulsemixer' 'light' 'xcolor'
 )
-conflicts=()
+conflicts=('archcraft-i3wm-premium')
 provides=("${pkgname}")
 options=(!strip !emptydirs)
 install="${pkgname}.install"
