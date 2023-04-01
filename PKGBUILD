@@ -2,7 +2,7 @@
 
 pkgname=archcraft-i3wm
 pkgver=2.0
-pkgrel=1
+pkgrel=2
 pkgdesc="i3wm Configurations for Archcraft"
 url="https://github.com/archcraft-os/archcraft-i3wm"
 arch=('any')
@@ -46,4 +46,7 @@ package() {
 	install -Dm 644 config   		"$_config"/config
 	install -Dm 644 dunstrc   		"$_config"/dunstrc
 	install -Dm 644 picom.conf   	"$_config"/picom.conf
+	install -Dm 644 picom-ibhagwan.conf   	"$_config"/picom-ibhagwan.conf
+	install -Dm 644 picom-jonaburg.conf   	"$_config"/picom-jonaburg.conf
+	install -Dm 644 picom-original.conf   	"$_config"/picom-original.conf
 }
