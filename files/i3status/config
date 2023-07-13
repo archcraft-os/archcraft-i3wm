@@ -1,0 +1,168 @@
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+##
+## i3status configuration for Archcraft
+
+##-- General ---------------------------
+general {
+	output_format = "i3bar"
+	interval = 5
+	markup = "pango"
+	separator = " "
+	colors = true
+	color_good = "#98c379"
+	color_degraded = "#e5c07b"
+	color_bad = "#e06c75"
+	color_separator = "#292e39"
+}
+
+##-- Modules Order ---------------------
+order += "volume master"
+order += "battery all"
+order += "wireless _first_"
+order += "cpu_usage"
+order += "memory"
+order += "disk /"
+order += "time"
+#order += "load"
+#order += "ipv6"
+#order += "run_watch DHCP"
+#order += "run_watch VPNC"
+#order += "path_exists VPN"
+#order += "ethernet _first_"
+#order += "cpu_temperature 0"
+#order += "tztime kolkata"
+#order += "read_file UPTIME"
+
+##-- Modules ---------------------------
+
+## Module :: ipv6
+ipv6 {
+	format_up = "%ip"
+	format_down = "No IPv6"
+}
+
+## Module :: disk
+disk "/" {
+	# %free | %avail | %total | %percentage_used/free/avail
+	format = " %free"
+	format_not_mounted = " Not Mounted"
+	prefix_type = custom
+	low_threshold = 2
+	format_below_threshold = " Warning: %free Free Space"
+	threshold_type = gbytes_free
+}
+
+## Module :: run_watch 
+run_watch DHCP {
+	format = "%title: %status"
+	format_down = ""
+}
+
+## Module :: run_watch 
+run_watch VPNC {
+	format = "%title: %status"
+	format_down = ""
+}
+
+## Module :: path_exists 
+path_exists VPN {
+	format = "%title: %status"
+	format_down = ""
+}
+
+## Module :: wireless 
+wireless _first_ {
+	# %quality | %essid | %bitrate | %frequency | %ip
+	format_up = " %essid"
+	format_down = " Disconnected"
+	format_bitrate = "%g %cb/s"
+	format_noise = "%03d%s"
+	format_quality = "%03d%s"
+	format_signal = "%03d%s"
+}
+
+## Module :: ethernet 
+ethernet _first_ {
+	format_up = "%ip (%speed)"
+	format_down = "Disconnected"
+}
+
+## Module :: battery 
+battery all {
+	# %percentage | %status | %remaining | %emptytime | %consumption
+	format = "%status %percentage (%remaining)"
+	format_down = "No Battery"
+	format_percentage = "%.00f%s"
+	integer_battery_capacity = true
+	last_full_capacity = true
+	hide_seconds = true
+	low_threshold = 20
+	threshold_type = percentage
+	status_chr = ""
+	status_bat = ""
+	status_unk = ""
+	status_full = ""
+}
+
+## Module :: cpu_temperature 
+cpu_temperature 0 {
+	path = "/sys/devices/platform/coretemp.0/temp1_input"
+	format = "%degrees °C"
+	max_threshold = 60
+	format_above_threshold = " Warning: %degrees °C"
+}
+
+## Module :: cpu_usage 
+cpu_usage {
+	format = " %usage"
+	degraded_threshold = 25
+	format_above_degraded_threshold = " %usage"
+	max_threshold = 75
+	format_above_threshold = " Warning: %usage"
+}
+
+## Module :: memory 
+memory {
+	# %total | %free | %used | %available | %shared
+	format = " %free"
+	unit = auto
+	decimals = 1
+	threshold_degraded = 1G
+	threshold_critical = 1G
+	format_degraded = " Low Memory: %free"
+}
+
+## Module :: load 
+load {
+	format = " %1min %5min %15min"
+	max_threshold = "5"
+	format_above_threshold = " Warning: %1min %5min %15min"
+}
+
+## Module :: time 
+time {
+	format = " %I:%M %p"
+}
+
+## Module :: tztime 
+tztime kolkata {
+	format = " %I:%M %p"
+	timezone = "Asia/Kolkata"
+	locale = "en_US.UTF-8"
+	hide_if_equals_localtime = false
+}
+
+## Module :: volume 
+volume master {
+	device = "pulse"
+	format = " %volume"
+	format_muted = " Muted"
+}
+
+## Module :: read_file 
+read_file UPTIME {
+	format = "%title: %content"
+	format_bad = "%title - %errno: %error"
+	path = "/proc/uptime"
+	Max_characters = 255
+}

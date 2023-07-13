@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+##
+## Autostart Programs
+
+# i3 dir
+idir="$HOME/.config/i3"
+
+# Kill already running process
+_ps=(xsettingsd ksuperkey)
+for _prs in "${_ps[@]}"; do
+	if [[ `pidof ${_prs}` ]]; then
+		killall -9 ${_prs}
+	fi
+done
+
+# Lauch xsettingsd daemon
+xsettingsd --config="$idir"/xsettingsd &
+
+# polkit agent
+if [[ ! `pidof xfce-polkit` ]]; then
+	/usr/lib/xfce-polkit/xfce-polkit &
+fi
+
+# Enable power management
+xfce4-power-manager &
+
+# Enable Super Keys For Menu
+ksuperkey -e 'Super_L=Alt_L|F1' &
+ksuperkey -e 'Super_R=Alt_L|F1' &
+
+# Fix cursor
+xsetroot -cursor_name left_ptr
+
+# Restore wallpaper
+hsetroot -root -cover "$idir"/theme/wallpaper
+
+# Lauch notification daemon
+"$idir"/scripts/i3_dunst
+
+# Lauch polybar
+"$idir"/scripts/i3_bar
+
+# Lauch compositor
+"$idir"/scripts/i3_comp
+
+# Start mpd
+exec mpd &

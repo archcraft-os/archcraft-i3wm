@@ -1,7 +1,0 @@
-#!/usr/bin/env bash
-
-## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
-
-DIR="$HOME/.config/i3"
-
-rofi -no-lazy-grab -show window -theme $DIR/rofi/themes/window.rasi

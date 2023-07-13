@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
+
+# i3 directory
+DIR="$HOME/.config/i3"
+
+# launch polybar
+bash "$DIR"/theme/polybar.sh

@@ -1,285 +1,326 @@
 ## Copyright (C) 2020-2023 Aditya Shakya <adi1090x@gmail.com>
 ##
 ## i3wm configuration for Archcraft
+##
+## i3 config file (v4)
 
-##-- Mod Keys ----------------------------
-set $mod Mod4
-set $alt Mod1
+##-- Include Config Files ----------------------
 
-##-- Fonts (Global) ----------------------
-font pango:JetBrains Mono Medium 10
+## Tilde expands to the user’s home directory:
+#include ~/.config/i3/01_theme.conf
 
-##-- Gaps --------------------------------
+## Environment variables are expanded:
+#include $HOME/.config/i3/01_theme.conf
 
-# Title bar text alignment
+## Wildcards are expanded:
+#include ~/.config/i3/config.d/*.conf
+
+## Command substitution:
+#include ~/.config/i3/`hostname`.conf
+
+## i3 changes the working directory while parsing a config file
+## so that relative paths are interpreted relative to the directory
+## of the config file that contains the path:
+#include 01_theme.conf
+
+## To list all loaded configuration files, run `i3 --moreversion`
+
+#------
+
+## Load i3 config files
+include ~/.config/i3/config.d/*.conf
+
+## Enable/Disable i3 bar
+#include ~/.config/i3/i3status/statusbar.conf
+
+##-- Mod Keys ----------------------------------
+set $MOD Mod4
+set $ALT Mod1
+
+##-- General Settings --------------------------
+
+## Floating Modifier
+##
+## To move floating windows with your mouse, you can either grab their titlebar 
+## or configure the so-called floating modifier which you can then press and click
+## anywhere in the window itself to move it.
+##
+## When holding the floating modifier, you can resize a floating window by pressing 
+## the right mouse button on it and moving around while holding it.
+## If you hold the shift button as well, the resize will be proportional
+## (the aspect ratio will be preserved).
+floating_modifier $MOD
+
+#------
+
+## Orientation for new workspaces
+##
+## New workspaces get a reasonable default orientation: Wide-screen monitors 
+## (anything wider than high) get horizontal orientation, rotated monitors 
+## (anything higher than wide) get vertical orientation.
+##
+## Syntax: default_orientation horizontal|vertical|auto
+default_orientation auto
+
+#------
+
+## Layout mode for new containers
+##
+## This option determines in which mode new containers on workspace level will start.
+##
+## Syntax: workspace_layout default|stacking|tabbed
+workspace_layout default
+
+#------
+
+## Window title alignment
+##
+## This option determines the window title’s text alignment. Default is left
+##
+## Syntax: title_align left|center|right
 title_align center
 
-# Uncomment this to enable title bars
-#for_window [class=".*"] border normal 4
+## Print all window titles in format of 'class | title'
+for_window [class=".*"] title_format "%class | %title"
 
-# Uncomment this to disable title bars
-for_window [class=".*"] border pixel 2
+## Enable window icons for all windows
+for_window [all] title_window_icon off
 
-# Gaps (Outer gaps are added to the inner gaps)
-gaps inner 15
-gaps outer 0
+## Enable window icons for all windows with extra horizontal padding
+#for_window [all] title_window_icon padding 5px
 
-# Only enable gaps on a workspace when there is at least one container
-#smart_gaps on
+#------
 
-# Activate smart borders (always)
+## Default border style for new windows
+##
+## This option determines which border style new windows will have. The default is `normal`.
+## Note that `default_floating_border` applies only to windows which are starting out
+## as floating windows, e.g., dialog windows, but not windows that are floated later on.
+##
+## Setting border style to `pixel` eliminates title bars. The border style `normal` 
+## allows you to adjust edge border width while keeping your title bar.
+##
+## Syntax: 
+#default_border normal|none|pixel
+#default_border normal|pixel <px>
+#default_floating_border normal|none|pixel
+#default_floating_border normal|pixel <px>
+#default_border pixel 2
+#default_floating_border pixel 2
+
+#------
+
+## Hiding borders adjacent to the screen edges
+##
+## You can hide container borders adjacent to the screen edges using `hide_edge_borders`
+## (the default is none). Hiding borders is useful if you are using scrollbars, 
+## or do not want to waste even two pixels in displayspace.
+##
+## The `smart` setting hides borders on workspaces with only one window visible, 
+## but keeps them on workspaces with multiple windows visible.
+##
+## The `smart_no_gaps` setting hides edge-specific borders of a container if the
+## container is the only container on its workspace and the gaps to the screen edge are 0.
+##
+## Syntax: hide_edge_borders none|vertical|horizontal|both|smart|smart_no_gaps
+hide_edge_borders none
+
+#------
+
+## Smart borders
+##
+## Smart borders will draw borders on windows only if there is more than one window 
+## in a workspace. This feature can also be enabled only if the gap size between 
+## window and screen edge is 0.
+##
+## Syntax: smart_borders on|off|no_gaps
 #smart_borders on
 
-##-- Colors ------------------------------
+#------
 
-# class                 border  backgr. text    indicator child_border
-client.focused          #DA6E89 #DA6E89 #FFFFFF #98C379   #DA6E89
-client.focused_inactive #61AFEF #61AFEF #1E222A #98C379   #61AFEF
-client.unfocused        #2C3038 #2C3038 #FFFFFF #98C379   #2C3038
-client.urgent           #C678DD #C678DD #FFFFFF #98C379   #C678DD
-client.placeholder      #1E222A #1E222A #FFFFFF #98C379   #1E222A
+## Don’t focus window upon opening
+##
+## When a new window appears, it will be focused. The `no_focus` directive allows 
+## preventing this from happening and must be used in combination with [command_criteria].
+##
+## Syntax: no_focus <criteria>
+#no_focus [window_role="pop-up"]
 
-client.background       #1E222A
+#------
 
-##-- Autostart ---------------------------
+## Automatically putting workspaces on specific screens
+##
+## If you assign clients to workspaces, it might be handy to put the workspaces on 
+## specific screens. Also, the assignment of workspaces to screens will determine 
+## which workspace i3 uses for a new screen when adding screens or when starting 
+## (e.g., by default it will use 1 for the first screen, 2 for the second screen and so on).
+##
+## Syntax: workspace <workspace> output <output1> [output2]…
+##
+## The `output` is the name of the RandR output you attach your screen to. 
+## On a laptop, you might have VGA1 and LVDS1 as output names. 
+## You can see the available outputs by running `xrandr --current`
+#workspace 1 output LVDS1
+#workspace 2 output primary
+#workspace 5 output VGA1 LVDS1
+#workspace "2: vim" output VGA1
 
-exec_always --no-startup-id 	~/.config/i3/bin/autostart.sh
+#------
 
-##-- Key Bindings ------------------------
+## Interprocess communication
+##
+## i3 uses Unix sockets to provide an IPC interface. This allows third-party programs
+## to get information from i3, such as the current workspaces (to display a workspace bar), and to control i3.
+##
+## You can override the default path through the environment-variable `I3SOCK` 
+## or by specifying the `ipc-socket` directive.This is discouraged, though, 
+## since i3 does the right thing by default. If you decide to change it, 
+## it is strongly recommended to set this to a location in your home directory
+## so that no other user can create that directory.
+#ipc-socket ~/.i3/i3-ipc.sock
 
-# -- Terminal --
-bindsym $mod+Return 			exec --no-startup-id ~/.config/i3/bin/i3term.sh
-bindsym $mod+Shift+Return 		exec --no-startup-id ~/.config/i3/bin/i3term.sh --float
-bindsym $mod+t 					exec --no-startup-id ~/.config/i3/bin/i3term.sh --full
+#------
 
-# -- Apps --
-bindsym $mod+Shift+f 			exec --no-startup-id thunar
-bindsym $mod+Shift+e 			exec --no-startup-id geany
-bindsym $mod+Shift+w 			exec --no-startup-id firefox
-bindsym $alt+Control+v 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e vim"
-bindsym $alt+Control+r 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e ranger"
-bindsym $alt+Control+h 			exec --no-startup-id "alacritty --config-file ~/.config/i3/alacritty/alacritty.yml -e htop"
-bindsym $alt+Control+m 			exec --no-startup-id ~/.config/i3/bin/i3music.sh
+## Focus follows mouse
+##
+## By default, window focus follows your mouse movements as the mouse crosses window borders.
+## However, if you have a setup where your mouse usually is in your way 
+## (like a touchpad on your laptop which you do not want to disable completely),
+## you might want to disable `focus follows mouse` and control focus only by using your keyboard.
+## The mouse will still be useful inside the currently active window (for example to click on links in your browser window).
+##
+## Syntax: focus_follows_mouse yes|no
+focus_follows_mouse yes
 
-# -- Rofi --
-bindsym $alt+F1 				exec --no-startup-id ~/.config/i3/rofi/bin/launcher
-bindsym $mod+n 					exec --no-startup-id ~/.config/i3/rofi/bin/network_menu
-bindsym $mod+x 					exec --no-startup-id ~/.config/i3/rofi/bin/powermenu
-bindsym $mod+m 					exec --no-startup-id ~/.config/i3/rofi/bin/mpd
-bindsym $mod+s 					exec --no-startup-id ~/.config/i3/rofi/bin/screenshot
-bindsym $mod+r 					exec --no-startup-id ~/.config/i3/rofi/bin/asroot
-bindsym $mod+w 					exec --no-startup-id ~/.config/i3/rofi/bin/windows
+#------
 
-# -- Function keys --
-bindsym XF86MonBrightnessUp 	exec --no-startup-id "~/.config/i3/bin/i3brightness.sh --inc"
-bindsym XF86MonBrightnessDown 	exec --no-startup-id "~/.config/i3/bin/i3brightness.sh --dec"
-bindsym XF86AudioRaiseVolume 	exec --no-startup-id "~/.config/i3/bin/i3volume.sh --inc"
-bindsym XF86AudioLowerVolume 	exec --no-startup-id "~/.config/i3/bin/i3volume.sh --dec"
-bindsym XF86AudioMute 			exec --no-startup-id "~/.config/i3/bin/i3volume.sh --toggle"
-bindsym XF86AudioMicMute 		exec --no-startup-id "~/.config/i3/bin/i3volume.sh --toggle-mic"
-bindsym XF86AudioNext 			exec --no-startup-id "mpc next"
-bindsym XF86AudioPrev 			exec --no-startup-id "mpc prev"
-bindsym XF86AudioPlay 			exec --no-startup-id "mpc toggle"
-bindsym XF86AudioStop 			exec --no-startup-id "mpc stop"
+## Mouse warping
+##
+## By default, when switching focus to a window on a different output 
+## (e.g. focusing a window on workspace 3 on output VGA-1, coming from workspace 2 on LVDS-1),
+## the mouse cursor is warped to the center of that window.
+##
+## With the `mouse_warping` option, you can control when the mouse cursor should be warped. 
+## `none` disables warping entirely, whereas `output` is the default behavior described above.
+##
+## Syntax: mouse_warping output|none
+mouse_warping none
 
-# -- Screenshots --
-bindsym Print 					exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --now"
-bindsym $mod+Print 				exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --in5"
-bindsym Shift+Print 			exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --in10"
-bindsym Control+Print 			exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --win"
-bindsym $mod+Control+Print 		exec --no-startup-id "~/.config/i3/bin/i3screenshot.sh --area"
+#------
 
-# -- i3wm --
+## Popups during fullscreen mode
+##
+## When you are in fullscreen mode, some applications still open popup windows (take Xpdf for example).
+## This is because these applications might not be aware that they are in fullscreen mode 
+## (they do not check the corresponding hint).
+## There are three things which are possible to do in this situation.
+##
+## Syntax: popup_during_fullscreen smart|ignore|leave_fullscreen
+popup_during_fullscreen smart
 
-# Lockscreen
-bindsym $alt+Control+l 			exec --no-startup-id "betterlockscreen --lock"
+#------
 
-# Use Mouse+$mod to drag floating windows to their wanted position
-floating_modifier $mod
+## Focus wrapping
+##
+## By default, when in a container with several windows or child containers,
+## the opposite window will be focused when trying to move the focus over the edge of
+## a container (and there are no other containers in that direction) — the focus wraps.
+##
+## Syntax: focus_wrapping yes|no|force|workspace
+# Disable focus wrapping
+#focus_wrapping no
+# Force focus wrapping
+#focus_wrapping force
 
-# kill focused window
-bindsym $mod+q kill
-bindsym $mod+c kill
+#------
 
-# change focus
-bindsym $mod+j focus left
-bindsym $mod+k focus down
-bindsym $mod+l focus up
-bindsym $mod+semicolon focus right
+## Forcing Xinerama
+##
+## As explained in-depth in https://i3wm.org/docs/multi-monitor.html, some X11 video
+## drivers (especially the nVidia binary driver) only provide support for Xinerama 
+## instead of RandR. In such a situation, i3 must be told to use the inferior Xinerama
+## API explicitly and therefore don’t provide support for reconfiguring your screens 
+## on the fly (they are read only once on startup and that’s it).
+##
+## Syntax: force_xinerama yes|no
+#force_xinerama yes
 
-# alternatively, you can use the cursor keys:
-bindsym $mod+Left focus left
-bindsym $mod+Down focus down
-bindsym $mod+Up focus up
-bindsym $mod+Right focus right
+#------
 
-# move focused window
-bindsym $mod+Shift+j move left
-bindsym $mod+Shift+k move down
-bindsym $mod+Shift+l move up
-bindsym $mod+Shift+semicolon move right
+## Automatic back-and-forth when switching to the current workspace
+##
+## This configuration directive enables automatic `workspace back_and_forth` 
+## when switching to the workspace that is currently focused.
+##
+## Syntax: workspace_auto_back_and_forth yes|no
+workspace_auto_back_and_forth yes
 
-# alternatively, you can use the cursor keys:
-bindsym $mod+Shift+Left move left
-bindsym $mod+Shift+Down move down
-bindsym $mod+Shift+Up move up
-bindsym $mod+Shift+Right move right
+#------
 
-# split in horizontal orientation
-bindsym $mod+h split h
+## Delaying urgency hint reset on workspace change
+##
+## If an application on another workspace sets an urgency hint, switching to this 
+## workspace might lead to immediate focus of the application, which also means the 
+## window decoration color would be immediately reset to `client.focused`. 
+## This might make it unnecessarily hard to tell which window originally raised the event.
+##
+## In order to prevent this, you can tell i3 to delay resetting the urgency state by
+## a certain time using the `force_display_urgency_hint` directive.
+## Setting the value to 0 disables this feature. The default is 500ms.
+##
+## Syntax: force_display_urgency_hint <timeout> ms
+force_display_urgency_hint 500 ms
 
-# split in vertical orientation
-bindsym $mod+v split v
+#------
 
-# enter fullscreen mode for the focused container
-bindsym $mod+f fullscreen toggle
+## Focus on window activation
+##
+## If a window is activated, e.g., via `google-chrome www.google.com`, it may request to take focus.
+## Since this might not be preferable, different reactions can be configured.
+##
+## Note that this might not affect windows that are being opened. 
+## To prevent new windows from being focused.
+##
+## Syntax: focus_on_window_activation smart|urgent|focus|none
+focus_on_window_activation smart
 
-# change container layout (stacked, tabbed, toggle split)
-bindsym $mod+Shift+z layout stacking
-bindsym $mod+Shift+x layout tabbed
-bindsym $mod+Shift+c layout toggle split
+#------
 
-# toggle tiling / floating
-bindsym $mod+space floating toggle
+## Drawing marks on window decoration
+##
+## If activated, marks on windows are drawn in their window decoration. 
+## However, any mark starting with an underscore in its name (_) will not be drawn
+## even if this option is activated.
+##
+## The default for this option is yes.
+##
+## Syntax: show_marks yes|no
+show_marks yes
 
-# change focus between tiling / floating windows
-bindsym $mod+Shift+space focus mode_toggle
+#------
 
-# focus the parent container
-bindsym $mod+a focus parent
+## Tiling drag
+##
+## You can configure how to initiate the tiling drag feature.
+##
+## Syntax:
+#tiling_drag off
+#tiling_drag modifier|titlebar [modifier|titlebar]
+tiling_drag modifier titlebar
 
-# focus the child container
-bindsym $mod+d focus child
+##-- Autostart ---------------------------------
 
-##-- Workspaces ---------------------
+## Automatically starting applications on i3 startup
+##
+## By using the `exec` keyword outside a keybinding, you can configure which commands
+## will be performed by i3 on initial startup. `exec` commands will not run when 
+## restarting i3, if you need a command to run also when restarting i3 you should
+## use the `exec_always` keyword. These commands will be run in order.
+##
+## Syntax:
+#exec [--no-startup-id] <command>
+#exec_always [--no-startup-id] <command>
+exec_always --no-startup-id ~/.config/i3/scripts/i3_autostart
 
-# Define names for default workspaces for which we configure key bindings later on.
-# We use variables to avoid repeating the names in multiple places.
-set $ws1 "1"
-set $ws2 "2"
-set $ws3 "3"
-set $ws4 "4"
-set $ws5 "5"
-set $ws6 "6"
-set $ws7 "7"
-set $ws8 "8"
-set $ws9 "9"
-set $ws10 "10"
-
-# switch to workspace
-bindsym $mod+1 workspace number $ws1
-bindsym $mod+2 workspace number $ws2
-bindsym $mod+3 workspace number $ws3
-bindsym $mod+4 workspace number $ws4
-bindsym $mod+5 workspace number $ws5
-bindsym $mod+6 workspace number $ws6
-bindsym $mod+7 workspace number $ws7
-bindsym $mod+8 workspace number $ws8
-bindsym $mod+9 workspace number $ws9
-bindsym $mod+0 workspace number $ws10
-
-# move focused container to workspace
-bindsym $mod+Shift+1 move container to workspace number $ws1
-bindsym $mod+Shift+2 move container to workspace number $ws2
-bindsym $mod+Shift+3 move container to workspace number $ws3
-bindsym $mod+Shift+4 move container to workspace number $ws4
-bindsym $mod+Shift+5 move container to workspace number $ws5
-bindsym $mod+Shift+6 move container to workspace number $ws6
-bindsym $mod+Shift+7 move container to workspace number $ws7
-bindsym $mod+Shift+8 move container to workspace number $ws8
-bindsym $mod+Shift+9 move container to workspace number $ws9
-bindsym $mod+Shift+0 move container to workspace number $ws10
-
-# reload the configuration file
-bindsym Control+$alt+c reload
-# restart i3 inplace (preserves your layout/session, can be used to upgrade i3)
-bindsym Control+Shift+r restart
-# quit i3 session
-bindsym Control+Shift+q exit
-
-##-- Resize / Move / Gaps ------------------------
-
-# resize window (you can also use the mouse for that)
-mode "Resize" {
-        # These bindings trigger as soon as you enter the resize mode
-
-        bindsym Left resize shrink width 10 px or 10 ppt
-        bindsym Down resize grow height 10 px or 10 ppt
-        bindsym Up resize shrink height 10 px or 10 ppt
-        bindsym Right resize grow width 10 px or 10 ppt
-
-        # back to normal: Enter or Escape or $mod+r
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-        bindsym $mod+r mode "default"
-}
-bindsym $mod+Shift+r mode "Resize"
-
-mode "Move" {
-        # These bindings trigger as soon as you enter the Move mode
-
-        bindsym Left move left 20px
-        bindsym Down move down  20px
-        bindsym Up move up 20px
-        bindsym Right move right 20px
-
-        # back to normal: Enter or Escape or $mod+r
-        bindsym Return mode "default"
-        bindsym Escape mode "default"
-        bindsym $mod+m mode "default"
-}
-bindsym $mod+Shift+m mode "Move"
-
-set $mode_gaps Gaps: (o)uter, (i)nner
-set $mode_gaps_outer Outer Gaps: +|-|0 (local), Shift + +|-|0 (global)
-set $mode_gaps_inner Inner Gaps: +|-|0 (local), Shift + +|-|0 (global)
-
-mode "$mode_gaps_outer" {
-        bindsym plus  gaps outer current plus 5
-        bindsym minus gaps outer current minus 5
-        bindsym 0     gaps outer current set 0
-
-        bindsym Shift+plus  gaps outer all plus 5
-        bindsym Shift+minus gaps outer all minus 5
-        bindsym Shift+0     gaps outer all set 0
-
-        bindsym Return mode "$mode_gaps"
-        bindsym Escape mode "default"
-}
-
-mode "$mode_gaps_inner" {
-        bindsym plus  gaps inner current plus 5
-        bindsym minus gaps inner current minus 5
-        bindsym 0     gaps inner current set 0
-
-        bindsym Shift+plus  gaps inner all plus 5
-        bindsym Shift+minus gaps inner all minus 5
-        bindsym Shift+0     gaps inner all set 0
-
-        bindsym Return mode "$mode_gaps"
-        bindsym Escape mode "default"
-}
-
-mode "$mode_gaps" {
-        bindsym o      mode "$mode_gaps_outer"
-        bindsym i      mode "$mode_gaps_inner"
-        bindsym Return mode "$mode_gaps"
-        bindsym Escape mode "default"
-}
-
-bindsym $mod+Shift+g mode "$mode_gaps"
-
-##-- Workspace Rules ------------------------
-assign [class="Lxappearance|Nitrogen"] 6
-assign [class="Pavucontrol|Xfce4-power-manager-settings"] 6
-
-##-- Window Rules ------------------------
-for_window [window_role="pop-up"] floating enable
-for_window [window_role="task_dialog"] floating enable
-for_window [class="alacritty-float|Music"] floating enable
-for_window [class="Pcmanfm|Onboard|Yad"] floating enable
-for_window [class="Lxappearance|Nitrogen"] floating enable
-for_window [class="Pavucontrol|Xfce4-power-manager-settings|Nm-connection-editor"] floating enable
-for_window [class="feh|Viewnior|Gpicview|Gimp|MPlayer"] floating enable
-for_window [class="Kvantum Manager|qt5ct"] floating enable
-for_window [class="VirtualBox Manager|qemu|Qemu-system-x86_64"] floating enable
+## The --no-startup-id parameter disables startup-notification support for this particular exec command.
+## With startup-notification, i3 can make sure that a window appears on the workspace on which you used the exec command.
