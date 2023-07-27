@@ -47,3 +47,7 @@ hsetroot -root -cover "$idir"/theme/wallpaper
 
 # Start mpd
 exec mpd &
+
+# For Lock Scren
+
+xss-lock  --transfer-sleep-lock -- bettrlockscreen --nofork
