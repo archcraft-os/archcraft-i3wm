@@ -31,10 +31,10 @@ device_connected() {
 # Useful for status bars like polybar, etc.
 print_status() {
     if power_on; then
-		if [[ -z `bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-` ]]; then
-			echo "%{F$POWER_ON}%{T2}%{T-} %{F-}On"
-		fi
-		
+        if [[ -z `bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-` ]]; then
+            echo "%{F$POWER_ON}%{T2}%{T-} %{F-}On"
+        fi
+
         paired_devices_cmd="devices Paired"
         # Check if an outdated version of bluetoothctl is used to preserve backwards compatibility
         if (( $(echo "$(bluetoothctl version | cut -d ' ' -f 2) < 5.65" | bc -l) )); then
@@ -49,9 +49,9 @@ print_status() {
                 device_alias=$(bluetoothctl info "$device" | grep "Alias" | cut -d ' ' -f 2-)
 
                 if [ $counter -gt 0 ]; then
-                    echo "%{F$POWER_ON}%{T2}%{T-} %{F-}$device_alias"
+                    echo -n "%{F$POWER_ON}%{T2}%{T-}%{F-} $device_alias "
                 else
-                    echo "%{F$POWER_ON}%{T2}%{T-} %{F-}$device_alias"
+                    echo -n "%{F$POWER_ON}%{T2}%{T-}%{F-} $device_alias "
                 fi
 
                 ((counter++))
