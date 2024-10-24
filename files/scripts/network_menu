@@ -17,7 +17,7 @@ import struct
 import configparser
 import locale
 import os
-from os.path import expanduser
+from os.path import basename, expanduser
 import shlex
 from shutil import which
 import sys
@@ -32,7 +32,6 @@ from gi.repository import GLib, NM  # noqa pylint: disable=wrong-import-position
 # pylint: enable=import-error
 
 ENV = os.environ.copy()
-ENV['LC_ALL'] = 'C'
 ENC = locale.getpreferredencoding()
 
 CONF = configparser.ConfigParser()
@@ -84,7 +83,7 @@ def dmenu_pass(command, color):
 
 
 def dmenu_cmd(num_lines, prompt="Networks", active_lines=None):
-    """Parse nmd.ini for menu options
+    """Parse config.ini for menu options
 
     Args: args - num_lines: number of lines to display
                  prompt: prompt to show
@@ -95,25 +94,34 @@ def dmenu_cmd(num_lines, prompt="Networks", active_lines=None):
     """
     # Create command string
     commands = {"dmenu": ["-p", str(prompt)],
-                "rofi": ["-dmenu", "-p", str(prompt), "-l", str(num_lines)],
+                "rofi": ["-dmenu", "-p", str(prompt)],
                 "bemenu": ["-p", str(prompt)],
-                "wofi": ["-p", str(prompt)]}
+                "wofi": ["-p", str(prompt)],
+                "fuzzel": ["-p", str(prompt), "--log-level", "none"]}
     command = shlex.split(CONF.get('dmenu', 'dmenu_command', fallback="dmenu"))
+    cmd_base = basename(command[0])
     command.extend(cli_args())
-    command.extend(commands.get(command[0], []))
-    # Rofi Highlighting
-    rofi_highlight = CONF.getboolean('dmenu', 'rofi_highlight', fallback=False)
-    if rofi_highlight is True and command[0] == "rofi" and active_lines:
-        command.extend(["-a", ",".join([str(num) for num in active_lines])])
+    command.extend(commands.get(cmd_base, []))
+    # Highlighting
+    highlight = CONF.getboolean('dmenu', 'highlight', fallback=False)
+    if highlight is True:
+        # Rofi
+        if cmd_base == "rofi" and active_lines:
+            command.extend(["-a", ",".join([str(num) for num in active_lines])])
+        # Wofi
+        if cmd_base == "wofi" and active_lines:
+            # add '-q' to prevent tag name and properties of pango markup from searchable
+            command.extend(["-m", "-q"])
     # Passphrase prompts
     obscure = CONF.getboolean('dmenu_passphrase', 'obscure', fallback=False)
     if prompt == "Passphrase" and obscure is True:
         obscure_color = CONF.get('dmenu_passphrase', 'obscure_color', fallback='#222222')
-        pass_prompts = {"dmenu": dmenu_pass(command[0], obscure_color),
+        pass_prompts = {"dmenu": dmenu_pass(cmd_base, obscure_color),
                         "rofi": ['-password'],
                         "bemenu": ['-x'],
-                        "wofi": ['-P']}
-        command.extend(pass_prompts.get(command[0], []))
+                        "wofi": ['-P'],
+                        "fuzzel": ['--password']}
+        command.extend(pass_prompts.get(cmd_base, []))
     return command
 
 
@@ -137,7 +145,8 @@ def choose_adapter(client):
     if not sel.strip():
         sys.exit()
     devices = [i for i in devices if i.get_iface() == sel.strip()]
-    assert len(devices) == 1
+    if len(devices) != 1:
+        raise ValueError(f"Selection was ambiguous: '{str(sel.strip())}'")
     return devices[0]
 
 
@@ -146,11 +155,31 @@ def is_installed(cmd):
     return which(cmd) is not None
 
 
+def is_running(cmd):
+    try:
+        subprocess.check_output(["pidof", cmd])
+    except subprocess.CalledProcessError:
+        return False
+    else:
+        return True
+
+
 def bluetooth_get_enabled():
-    """Check if bluetooth is enabled via rfkill.
+    """Check if bluetooth is enabled. Try bluetoothctl first, then rfkill.
 
     Returns None if no bluetooth device was found.
     """
+    if is_installed('bluetoothctl') and is_running('bluetoothd'):
+        # Times out in 2 seconds, otherwise bluetoothctl will hang if bluetooth
+        # service isn't running.
+        try:
+            res = subprocess.run(['bluetoothctl', 'show'],
+                                 timeout=2,
+                                 capture_output=True,
+                                 text=True)
+            return "Powered: yes" in res.stdout
+        except subprocess.TimeoutExpired:
+            pass
     # See https://www.kernel.org/doc/Documentation/ABI/stable/sysfs-class-rfkill
     for path in pathlib.Path('/sys/class/rfkill/').glob('rfkill*'):
         if (path / 'type').read_text().strip() == 'bluetooth':
@@ -375,6 +404,20 @@ def process_vpngsm(con, activate):
         CLIENT.deactivate_connection_async(con, None, deactivate_cb, con)
     LOOP.run()
 
+def strength_bars(signal_strength):
+    bars = NM.utils_wifi_strength_bars(signal_strength)
+    wifi_chars = CONF.get("dmenu", "wifi_chars", fallback=False)
+    if wifi_chars:
+        bars = "".join([wifi_chars[i] for i, j in enumerate(bars) if j == '*'])
+    return bars
+
+
+def strength_icon(signal_strength):
+    wifi_icons = CONF.get("dmenu", "wifi_icons", fallback=False)
+    if wifi_icons:
+        return wifi_icons[round(signal_strength / 100 * (len(wifi_icons) - 1))]
+    return ""
+
 
 def create_ap_actions(aps, active_ap, active_connection, adapter):  # noqa pylint: disable=too-many-locals,line-too-long
     """For each AP in a list, create the string and its attached function
@@ -390,17 +433,18 @@ def create_ap_actions(aps, active_ap, active_connection, adapter):  # noqa pylin
 
     ap_actions = []
 
+    if CONF.getboolean("dmenu", "compact", fallback=False):
+        format = CONF.get("dmenu", "format", fallback="{name}  {sec}  {bars}")
+    else:
+        format = CONF.get("dmenu", "format", fallback="{name:<{max_len_name}s}  {sec:<{max_len_sec}s} {bars:>4}")
+
     for nm_ap, name, sec in zip(aps, names, secs):
-        bars = NM.utils_wifi_strength_bars(nm_ap.get_strength())
-        wifi_chars = CONF.get("dmenu", "wifi_chars", fallback=False)
-        if wifi_chars:
-            bars = "".join([wifi_chars[i] for i, j in enumerate(bars) if j == '*'])
         is_active = nm_ap.get_bssid() == active_ap_bssid
-        compact = CONF.getboolean("dmenu", "compact", fallback=False)
-        if compact:
-            action_name = f"{name}  {sec}  {bars}"
-        else:
-            action_name = f"{name:<{max_len_name}s}  {sec:<{max_len_sec}s} {bars:>4}"
+        signal_strength = nm_ap.get_strength()
+        bars = strength_bars(signal_strength)
+        icon = strength_icon(signal_strength)
+        action_name = format.format(name=name, sec=sec, signal=signal_strength, bars=bars, icon=icon,
+                                    max_len_name=max_len_name, max_len_sec=max_len_sec)
         if is_active:
             ap_actions.append(Action(action_name, process_ap,
                                      [active_connection, True, adapter],
@@ -418,6 +462,15 @@ def create_vpn_actions(vpns, active):
     """
     active_vpns = [i for i in active if i.get_vpn()]
     return _create_vpngsm_actions(vpns, active_vpns, "VPN")
+
+
+def create_vlan_actions(vlans, active):
+    """Create the list of strings to display with associated function
+    (activate/deactivate) for VLAN connections.
+
+    """
+    active_vlans = [i for i in active if "vlan" == i.get_connection_type()]
+    return _create_vpngsm_actions(vlans, active_vlans, "VLAN")
 
 
 def create_wireguard_actions(wgs, active):
@@ -494,7 +547,7 @@ def create_wwan_actions(client):
     return [Action(f"{wwan_action} WWAN", toggle_wwan, not wwan_enabled)]
 
 
-def combine_actions(eths, aps, vpns, wgs, gsms, blues, wwan, others, saved):
+def combine_actions(eths, aps, vlans, vpns, wgs, gsms, blues, wwan, others, saved):
     # pylint: disable=too-many-arguments
     """Combine all given actions into a list of actions.
 
@@ -511,6 +564,7 @@ def combine_actions(eths, aps, vpns, wgs, gsms, blues, wwan, others, saved):
     all_actions = []
     all_actions += eths + empty_action if eths else []
     all_actions += aps + empty_action if aps else []
+    all_actions += vlans + empty_action if vlans else []
     all_actions += vpns + empty_action if vpns else []
     all_actions += wgs + empty_action if wgs else []
     all_actions += gsms + empty_action if (gsms and wwan) else []
@@ -521,15 +575,37 @@ def combine_actions(eths, aps, vpns, wgs, gsms, blues, wwan, others, saved):
     return all_actions
 
 
+def get_wofi_highlight_markup(action):
+    highlight_fg = CONF.get('dmenu', 'highlight_fg', fallback=None)
+    highlight_bg = CONF.get('dmenu', 'highlight_bg', fallback=None)
+    highlight_bold = CONF.getboolean('dmenu', 'highlight_bold', fallback=True)
+
+    style = ""
+    if highlight_fg:
+        style += f'foreground="{highlight_fg}" '
+    if highlight_bg:
+        style += f'background="{highlight_bg}" '
+    if highlight_bold:
+        style += 'weight="bold" '
+
+    return f"<span {style}>" + str(action) + "</span>"
+
+
 def get_selection(all_actions):
     """Spawn dmenu for selection and execute the associated action."""
-    rofi_highlight = CONF.getboolean('dmenu', 'rofi_highlight', fallback=False)
+    command = shlex.split(CONF.get("dmenu", "dmenu_command", fallback="dmenu"))
+    cmd_base = basename(command[0])
+    active_chars = CONF.get("dmenu", "active_chars", fallback="==")
+    highlight = CONF.getboolean("dmenu", "highlight", fallback=False)
     inp = []
 
-    if rofi_highlight is True:
+    if highlight is True and cmd_base == "rofi":
         inp = [str(action) for action in all_actions]
+    elif highlight is True and cmd_base == "wofi":
+        inp = [get_wofi_highlight_markup(action) if action.is_active else str(action)
+               for action in all_actions]
     else:
-        inp = [('== ' if action.is_active else '   ') + str(action)
+        inp = [(active_chars if action.is_active else " " * len(active_chars)) + " " + str(action)
                for action in all_actions]
     active_lines = [index for index, action in enumerate(all_actions)
                     if action.is_active]
@@ -545,15 +621,20 @@ def get_selection(all_actions):
     if not sel.rstrip():
         sys.exit()
 
-    if rofi_highlight is False:
+    if highlight is True and cmd_base == "rofi":
+        action = [i for i in all_actions if str(i).strip() == sel.strip()]
+    elif highlight is True and cmd_base == "wofi":
+        action = [i for i in all_actions
+                  if str(i).strip() == sel.strip() or
+                     get_wofi_highlight_markup(i) == sel.strip()]
+    else:
         action = [i for i in all_actions
                   if ((str(i).strip() == str(sel.strip())
                        and not i.is_active) or
-                      ('== ' + str(i) == str(sel.rstrip('\n'))
+                      (active_chars + " " + str(i) == str(sel.rstrip('\n'))
                        and i.is_active))]
-    else:
-        action = [i for i in all_actions if str(i).strip() == sel.strip()]
-    assert len(action) == 1, f"Selection was ambiguous: '{str(sel.strip())}'"
+    if len(action) != 1:
+        raise ValueError(f"Selection was ambiguous: '{str(sel.strip())}'")
     return action[0]
 
 
@@ -608,6 +689,9 @@ def toggle_wwan(enable):
 def toggle_bluetooth(enable):
     """Enable/disable Bluetooth
 
+    Try bluetoothctl first, then drop to rfkill if it's not installed or
+    bluetooth service isn't running.
+
     Args: enable - boolean
 
     References:
@@ -616,6 +700,26 @@ def toggle_bluetooth(enable):
     https://git.kernel.org/pub/scm/linux/kernel/git/stable/linux.git/tree/include/uapi/linux/rfkill.h?h=v5.8.9
 
     """
+    if is_installed('bluetoothctl') and is_running('bluetoothd'):
+        # Times out in 2 seconds, otherwise bluetoothctl will hang if bluetooth
+        # service isn't running.
+        try:
+            res = subprocess.run(['bluetoothctl', 'power', 'on' if enable is True else 'off'],
+                                 timeout=2,
+                                 capture_output=True)
+        except subprocess.TimeoutExpired:
+            pass
+        try:
+            res = subprocess.run(['bluetoothctl', 'show'],
+                                 timeout=2,
+                                 capture_output=True,
+                                 text=True)
+            if "Powered: yes" in res.stdout:
+                notify("Bluetooth enabled")
+                return
+        except subprocess.TimeoutExpired:
+            pass
+    # Now try using rfkill
     type_bluetooth = 2
     op_change_all = 3
     idx = 0
@@ -640,16 +744,15 @@ def launch_connection_editor():
     """Launch nmtui or the gui nm-connection-editor
 
     """
-    terminal = CONF.get("editor", "terminal", fallback="xterm")
+    terminal = shlex.split(CONF.get("editor", "terminal", fallback="xterm"))
     gui_if_available = CONF.getboolean("editor", "gui_if_available", fallback=True)
-    guis = ["gnome-control-center", "nm-connection-editor"]
+    gui = CONF.get("editor", "gui", fallback="nm-connection-editor")
     if gui_if_available is True:
-        for gui in guis:
-            if is_installed(gui):
-                subprocess.run(gui, check=False)
-                return
+        if is_installed(gui):
+            subprocess.run(gui, check=False)
+            return
     if is_installed("nmtui"):
-        subprocess.run([terminal, "-e", "nmtui"], check=False)
+        subprocess.run(terminal + ["-e", "nmtui"], check=False)
         return
     notify("No network connection editor installed", urgency="critical")
 
@@ -662,16 +765,18 @@ def get_passphrase():
     """
     pinentry = CONF.get("dmenu", "pinentry", fallback=None)
     if pinentry:
+        description = CONF.get("pinentry", "description", fallback="Get network password")
+        prompt = CONF.get("pinentry", "prompt", fallback="Password: ")
         pin = ""
         out = subprocess.run(pinentry,
                              capture_output=True,
                              check=False,
                              encoding=ENC,
-                             input='setdesc Get network password\ngetpin\n').stdout
+                             input=f"setdesc {description}\nsetprompt {prompt}\ngetpin\n").stdout
         if out:
-            res = out.split("\n")[2]
-            if res.startswith("D "):
-                pin = res.split("D ")[1]
+            res = [i for i in out.split("\n") if i.startswith("D ")]
+            if res and res[0].startswith("D "):
+                pin = res[0].split("D ")[1]
         return pin
     return subprocess.run(dmenu_cmd(0, "Passphrase"),
                           stdin=subprocess.DEVNULL,
@@ -695,7 +800,8 @@ def delete_connection():
     if not sel.strip():
         sys.exit()
     action = [i for i in conn_acts if str(i) == sel.rstrip("\n")]
-    assert len(action) == 1, f"Selection was ambiguous: {str(sel)}"
+    if len(action) != 1:
+        raise ValueError(f"Selection was ambiguous: {str(sel)}")
     action[0]()
     LOOP.run()
 
@@ -862,6 +968,11 @@ def notify(message, details=None, urgency="low"):
 
 def run():  # pylint: disable=too-many-locals
     """Main script entrypoint"""
+    try:
+        subprocess.check_output(["pidof", "NetworkManager"])
+    except subprocess.CalledProcessError:
+        notify("WARNING: NetworkManager don't seems to be running")
+        print("WARNING: NetworkManager don't seems to be running")
     active = CLIENT.get_active_connections()
     adapter = choose_adapter(CLIENT)
     if adapter:
@@ -876,11 +987,13 @@ def run():  # pylint: disable=too-many-locals
         # Workaround for older versions of python-gobject with no wireguard support
         wgs = []
     eths = [i for i in CONNS if i.is_type(NM.SETTING_WIRED_SETTING_NAME)]
+    vlans = [i for i in CONNS if i.is_type(NM.SETTING_VLAN_SETTING_NAME)]
     blues = [i for i in CONNS if i.is_type(NM.SETTING_BLUETOOTH_SETTING_NAME)]
 
     vpn_actions = create_vpn_actions(vpns, active)
     wg_actions = create_wireguard_actions(wgs, active)
     eth_actions = create_eth_actions(eths, active)
+    vlan_actions = create_vlan_actions(vlans, active)
     blue_actions = create_blue_actions(blues, active)
     other_actions = create_other_actions(CLIENT)
     wwan_installed = is_installed("ModemManager")
@@ -899,8 +1012,9 @@ def run():  # pylint: disable=too-many-locals
     else:
         saved_actions = [Action("Saved connections", prompt_saved, [saved_cons])]
 
-    actions = combine_actions(eth_actions, ap_actions, vpn_actions, wg_actions,
-                              gsm_actions, blue_actions, wwan_actions,
+
+    actions = combine_actions(eth_actions, ap_actions, vlan_actions, vpn_actions,
+                              wg_actions, gsm_actions, blue_actions, wwan_actions,
                               other_actions, saved_actions)
     sel = get_selection(actions)
     sel()

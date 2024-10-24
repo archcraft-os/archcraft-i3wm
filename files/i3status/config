@@ -44,11 +44,11 @@ ipv6 {
 ## Module :: disk
 disk "/" {
 	# %free | %avail | %total | %percentage_used/free/avail
-	format = " %free"
-	format_not_mounted = " Not Mounted"
+	format = "  %free"
+	format_not_mounted = "  Not Mounted"
 	prefix_type = custom
 	low_threshold = 2
-	format_below_threshold = " Warning: %free Free Space"
+	format_below_threshold = "  Warning: %free Free Space"
 	threshold_type = gbytes_free
 }
 
@@ -73,8 +73,8 @@ path_exists VPN {
 ## Module :: wireless 
 wireless _first_ {
 	# %quality | %essid | %bitrate | %frequency | %ip
-	format_up = " %essid"
-	format_down = " Disconnected"
+	format_up = "  %essid"
+	format_down = "  Disconnected"
 	format_bitrate = "%g %cb/s"
 	format_noise = "%03d%s"
 	format_quality = "%03d%s"
@@ -99,9 +99,9 @@ battery all {
 	low_threshold = 20
 	threshold_type = percentage
 	status_chr = ""
-	status_bat = ""
-	status_unk = ""
-	status_full = ""
+	status_bat = " "
+	status_unk = " "
+	status_full = " "
 }
 
 ## Module :: cpu_temperature 
@@ -109,44 +109,44 @@ cpu_temperature 0 {
 	path = "/sys/devices/platform/coretemp.0/temp1_input"
 	format = "%degrees °C"
 	max_threshold = 60
-	format_above_threshold = " Warning: %degrees °C"
+	format_above_threshold = "  Warning: %degrees °C"
 }
 
 ## Module :: cpu_usage 
 cpu_usage {
-	format = " %usage"
+	format = "  %usage"
 	degraded_threshold = 25
-	format_above_degraded_threshold = " %usage"
+	format_above_degraded_threshold = "  %usage"
 	max_threshold = 75
-	format_above_threshold = " Warning: %usage"
+	format_above_threshold = "  Warning: %usage"
 }
 
 ## Module :: memory 
 memory {
 	# %total | %free | %used | %available | %shared
-	format = " %free"
+	format = "  %free"
 	unit = auto
 	decimals = 1
 	threshold_degraded = 1G
 	threshold_critical = 1G
-	format_degraded = " Low Memory: %free"
+	format_degraded = "  Low Memory: %free"
 }
 
 ## Module :: load 
 load {
 	format = " %1min %5min %15min"
 	max_threshold = "5"
-	format_above_threshold = " Warning: %1min %5min %15min"
+	format_above_threshold = "  Warning: %1min %5min %15min"
 }
 
 ## Module :: time 
 time {
-	format = " %I:%M %p"
+	format = "  %I:%M %p"
 }
 
 ## Module :: tztime 
 tztime kolkata {
-	format = " %I:%M %p"
+	format = "  %I:%M %p"
 	timezone = "Asia/Kolkata"
 	locale = "en_US.UTF-8"
 	hide_if_equals_localtime = false
@@ -155,7 +155,7 @@ tztime kolkata {
 ## Module :: volume 
 volume master {
 	device = "pulse"
-	format = " %volume"
+	format = "  %volume"
 	format_muted = " Muted"
 }
 

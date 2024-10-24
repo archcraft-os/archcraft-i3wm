@@ -5,6 +5,7 @@
 
 ## GENERAL --------------------------------------------------------
 
+[general]
 ## Import additional configuration files.
 import = ["~/.config/i3/alacritty/colors.toml", "~/.config/i3/alacritty/fonts.toml"]
 
@@ -44,7 +45,7 @@ decorations_theme_variant = "None"
 
 ## Number of lines/columns (not pixels) in the terminal.
 [window.dimensions]
-columns = 82
+columns = 95
 lines = 24
 
 ## Blank space added around the window in pixels.
