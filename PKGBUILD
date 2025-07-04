@@ -2,7 +2,7 @@
 
 pkgname=archcraft-i3wm
 pkgver=3.0
-pkgrel=6
+pkgrel=7
 pkgdesc="i3wm Configurations for Archcraft"
 arch=('any')
 url="https://github.com/archcraft-os/archcraft-i3wm"
@@ -46,6 +46,7 @@ package() {
 	cp -r "$srcdir"/alacritty 		"$_wmdir"
 	cp -r "$srcdir"/config.d 		"$_wmdir"
 	cp -r "$srcdir"/i3status 		"$_wmdir"
+	cp -r "$srcdir"/kitty 		    "$_wmdir"
 	cp -r "$srcdir"/scripts 		"$_wmdir"
 	cp -r "$srcdir"/theme 			"$_wmdir"
 
